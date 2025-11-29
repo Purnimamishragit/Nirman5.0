@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../database"
+		},
+		{
+			"path": "../frontend"
+		},
+		{
+			"path": "../models"
+		},
+		{
+			"path": "../routes"
+		},
+		{
+			"path": "../utils"
+		},
+		{
+			"path": "../venv"
+		}
+	]
+}

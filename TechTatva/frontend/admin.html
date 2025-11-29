@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRRTS - Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🏥</span>
+                    <span class="logo-text">HRRTS Admin</span>
+                </div>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Patient View</a>
+                    <a href="admin.html" class="nav-link active">Admin Panel</a>
+                    <button id="logoutBtn" class="btn btn-secondary" style="display: none;">Logout</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Login Section -->
+            <section id="loginSection" class="admin-section">
+                <div class="admin-card">
+                    <h2 class="card-title">Hospital Admin Login</h2>
+                    <p class="card-subtitle">Please enter your credentials to update hospital resources</p>
+                    
+                    <form id="loginForm" class="admin-form">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username</label>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                class="form-input" 
+                                placeholder="Enter username" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                class="form-input" 
+                                placeholder="Enter password" 
+                                required
+                            >
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Login
+                        </button>
+                    </form>
+                    
+                    <div class="login-help">
+                        <p><strong>Demo Credentials:</strong></p>
+                        <p>Username: <code>apollo_admin</code> | Password: <code>admin123</code></p>
+                        <p class="text-small">Other admins: fortis_admin, aiims_admin, lilavati_admin, max_admin</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Section -->
+            <section id="dashboardSection" class="admin-section" style="display: none;">
+                <div class="hospital-info-card">
+                    <h2 class="card-title">
+                        <span id="hospitalName">Hospital Name</span>
+                        <span class="status-badge">Active</span>
+                    </h2>
+                    <div class="hospital-details">
+                        <p><strong>Address:</strong> <span id="hospitalAddress"></span></p>
+                        <p><strong>Phone:</strong> <span id="hospitalPhone"></span></p>
+                        <p><strong>Specialities:</strong> <span id="hospitalSpecialities"></span></p>
+                    </div>
+                    <p class="last-update">Last Updated: <span id="lastUpdated">-</span></p>
+                </div>
+
+                <!-- Update Resources Form -->
+                <div class="admin-card">
+                    <h3 class="card-title">Update Hospital Resources</h3>
+                    <form id="updateForm" class="resource-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="beds" class="form-label">
+                                    🛏️ Beds Available
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="beds" 
+                                    name="beds_available"
+                                    class="form-input" 
+                                    min="0" 
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="icu" class="form-label">
+                                    🏥 ICU Beds
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="icu" 
+                                    name="icu_available"
+                                    class="form-input" 
+                                    min="0" 
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="oxygen" class="form-label">
+                                    💨 Oxygen Cylinders
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="oxygen" 
+                                    name="oxygen_cylinders"
+                                    class="form-input" 
+                                    min="0" 
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="blood" class="form-label">
+                                    🩸 Blood Units
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="blood" 
+                                    name="blood_units"
+                                    class="form-input" 
+                                    min="0" 
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="doctors" class="form-label">
+                                    👨‍⚕️ Doctors Available
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="doctors" 
+                                    name="doctors_available"
+                                    class="form-input" 
+                                    min="0" 
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Update Resources
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Current Status Display -->
+                <div class="admin-card">
+                    <h3 class="card-title">Current Resource Status</h3>
+                    <div class="resource-grid" id="currentStatus">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Hospital Resource Real-Time System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:5000';
+        
+        // Check login status on page load
+        checkLoginStatus();
+
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Login successful!', 'success');
+                    loadDashboard(data.hospital);
+                } else {
+                    showToast(data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showToast('Connection error. Please try again.', 'error');
+                console.error('Login error:', error);
+            }
+        });
+
+        // Update Form Handler
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                beds_available: parseInt(document.getElementById('beds').value),
+                icu_available: parseInt(document.getElementById('icu').value),
+                oxygen_cylinders: parseInt(document.getElementById('oxygen').value),
+                blood_units: parseInt(document.getElementById('blood').value),
+                doctors_available: parseInt(document.getElementById('doctors').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/admin/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Resources updated successfully!', 'success');
+                    updateCurrentStatus(data.data);
+                } else {
+                    showToast(data.error || 'Update failed', 'error');
+                }
+            } catch (error) {
+                showToast('Connection error. Please try again.', 'error');
+                console.error('Update error:', error);
+            }
+        });
+
+        // Logout Handler
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await fetch(`${API_URL}/api/admin/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                showToast('Logged out successfully', 'success');
+                showLoginSection();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/status`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.logged_in && data.hospital) {
+                    loadDashboard(data.hospital);
+                }
+            } catch (error) {
+                console.error('Status check error:', error);
+            }
+        }
+
+        function loadDashboard(hospital) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'block';
+            
+            // Populate hospital info
+            document.getElementById('hospitalName').textContent = hospital.name;
+            document.getElementById('hospitalAddress').textContent = hospital.address;
+            document.getElementById('hospitalPhone').textContent = hospital.phone;
+            document.getElementById('hospitalSpecialities').textContent = hospital.specialities || 'General';
+            
+            // Populate form with current values
+            document.getElementById('beds').value = hospital.beds_available || 0;
+            document.getElementById('icu').value = hospital.icu_available || 0;
+            document.getElementById('oxygen').value = hospital.oxygen_cylinders || 0;
+            document.getElementById('blood').value = hospital.blood_units || 0;
+            document.getElementById('doctors').value = hospital.doctors_available || 0;
+            
+            updateCurrentStatus(hospital);
+        }
+
+        function updateCurrentStatus(hospital) {
+            const lastUpdated = hospital.last_updated ? 
+                new Date(hospital.last_updated).toLocaleString() : 'Never';
+            document.getElementById('lastUpdated').textContent = lastUpdated;
+            
+            const statusHTML = `
+                <div class="resource-card">
+                    <div class="resource-icon">🛏️</div>
+                    <div class="resource-info">
+                        <div class="resource-label">Beds</div>
+                        <div class="resource-value">${hospital.beds_available || 0}</div>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-icon">🏥</div>
+                    <div class="resource-info">
+                        <div class="resource-label">ICU</div>
+                        <div class="resource-value">${hospital.icu_available || 0}</div>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-icon">💨</div>
+                    <div class="resource-info">
+                        <div class="resource-label">Oxygen</div>
+                        <div class="resource-value">${hospital.oxygen_cylinders || 0}</div>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-icon">🩸</div>
+                    <div class="resource-info">
+                        <div class="resource-label">Blood</div>
+                        <div class="resource-value">${hospital.blood_units || 0}</div>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-icon">👨‍⚕️</div>
+                    <div class="resource-info">
+                        <div class="resource-label">Doctors</div>
+                        <div class="resource-value">${hospital.doctors_available || 0}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('currentStatus').innerHTML = statusHTML;
+        }
+
+        function showLoginSection() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('loginForm').reset();
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+            
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRRTS - Hospital Resource Tracker</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🏥</span>
+                    <span class="logo-text">HRRTS</span>
+                </div>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link active">Patient View</a>
+                    <a href="admin.html" class="nav-link">Admin Login</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Search Section -->
+            <section class="search-section">
+                <div class="search-wrapper">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-input" 
+                        placeholder="Search hospitals by name or speciality..."
+                    >
+                    <button id="searchBtn" class="search-btn">
+                        <span>🔍</span> Search
+                    </button>
+                    <button id="clearBtn" class="clear-btn">Clear</button>
+                </div>
+                <div class="location-info" id="locationInfo">
+                    <span class="location-icon">📍</span>
+                    <span id="locationText">Detecting your location...</span>
+                </div>
+            </section>
+
+            <!-- Map Section -->
+            <section class="map-section">
+                <h2 class="section-title">Hospitals Near You</h2>
+                <div id="map" class="map-container"></div>
+            </section>
+
+            <!-- Hospital List -->
+            <section class="hospital-list-section">
+                <h2 class="section-title">
+                    Hospital Directory
+                    <span class="badge" id="hospitalCount">0</span>
+                </h2>
+                <div id="hospitalList" class="hospital-grid">
+                    <!-- Hospitals will be loaded here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Notification Modal -->
+    <div id="notifyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Get Notified</h2>
+            <p>Enter your email to receive notifications when resources become available.</p>
+            <form id="notifyForm">
+                <input type="hidden" id="notifyHospitalId">
+                <input 
+                    type="email" 
+                    id="notifyEmail" 
+                    class="form-input" 
+                    placeholder="your.email@example.com" 
+                    required
+                >
+                <select id="notifyResource" class="form-input" required>
+                    <option value="">Select Resource</option>
+                    <option value="beds_available">Beds</option>
+                    <option value="icu_available">ICU Beds</option>
+                    <option value="oxygen_cylinders">Oxygen Cylinders</option>
+                    <option value="blood_units">Blood Units</option>
+                    <option value="doctors_available">Doctors</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Subscribe to Alerts</button>
+        </form>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading hospitals...</p>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2024 Hospital Resource Real-Time System. All rights reserved.</p>
+        <p class="footer-note">Data updates every 3 seconds</p>
+    </div>
+</footer>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Custom JS -->
+<script src="script.js"></script>
+</body>
+</html>
