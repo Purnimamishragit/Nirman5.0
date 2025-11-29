@@ -78,3 +78,89 @@ void setup() {
 
 void loop() {
   ArduinoCloud.update();
+  unsigned long currentMillis = millis();
+  if (currentMillis - lastTempReadTime >= tempReadInterval) {
+    lastTempReadTime = currentMillis;
+    readTemperature();
+    temperature_sensor = currentTemp;  // Update Arduino Cloud variable
+  }
+
+  handleButtons();
+
+  if (auto_Mode) {
+    handleCooling();
+  } else {
+    digitalWrite(RelayPin1, !cooler);  // Manual mode control
+  }
+
+  displayData();
+}
+
+void readTemperature() {
+  const int samples = 10;
+  long adcSum = 0;
+
+  for (int i = 0; i < samples; i++) {
+    adcSum += analogRead(THERMISTOR_PIN);
+    delay(5);
+  }
+
+  int adcValue = adcSum / samples;
+  float voltage = adcValue * V_SUPPLY / 4095.0;
+  float resistance = (voltage * R_FIXED) / (V_SUPPLY - voltage);
+  float temperatureK = 1.0 / ((1.0 / To) + (1.0 / BETA) * log(resistance / Ro));
+  float temperatureC = temperatureK - 273.15;
+  currentTemp = temperatureC - 4.2;  // Optional calibration offset
+
+  Serial.print("ADC: ");
+  Serial.print(adcValue);
+  Serial.print("  Voltage: ");
+  Serial.print(voltage, 3);
+  Serial.print(" V  Temp: ");
+  Serial.print(currentTemp, 2);
+  Serial.println(" °C");
+}
+
+void handleCooling() {
+  if (currentTemp > set_temp) {
+    cooler = true;
+  } else {
+    cooler = false;
+  }
+
+  digitalWrite(RelayPin1, !cooler);  // Active LOW
+  pref.putBool("Cooler", cooler);
+}
+
+void displayData() {
+  display.clearDisplay();
+
+  display.setTextSize(2);
+  display.setCursor(0, 7);
+  display.println("----------");
+
+  display.setCursor(42, 20);
+  display.print((int)currentTemp);
+  display.print((char)247);  // Degree symbol
+  display.println("C");
+
+  display.setCursor(0, 34);
+  display.println("----------");
+
+  display.setTextSize(1);
+  display.setCursor(35, 57);
+  display.print("SetTemp:");
+  display.print((int)set_temp);
+  display.print((char)247);
+  display.println("C");
+
+  display.setCursor(20, 45);
+  if (auto_Mode) {
+    display.print("Automatic Mode");
+  } else {
+    display.print("Manual Mode ");
+    display.setCursor(0, 0);
+    display.print("Cooler: ");
+    display.print(cooler ? "ON " : "OFF");
+  }
+
