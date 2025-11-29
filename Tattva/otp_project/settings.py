@@ -89,7 +89,8 @@ DATABASE_URL = "postgresql://postgres:jVIiAMXvKvcplkxEdINtkcEQPPdnSgOv@shuttle.p
 # os.environ["DATABASE_URL"] = DATABASE_URL 
 
 # 2. Use dj_database_url to parse the URL and configure the default database.
-DATABASES = {}
+DATABASES = {
+
 }
 
 # Password validation
